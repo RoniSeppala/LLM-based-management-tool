@@ -8,9 +8,7 @@ function App() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
-      <Box sx={{ flex: 1 }}>
-        <Interface />
-      </Box>
+      <Interface />
       <Footer />
     </Box>
   )
