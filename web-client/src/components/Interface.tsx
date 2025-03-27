@@ -14,7 +14,7 @@ const Interface: React.FC = () => {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
   const [input, setInput] = useState('');
 
-  const handleSend = () => {
+  const handleSend = async() => {
     if (!input.trim()) return;
 
     // Add user message
@@ -22,11 +22,26 @@ const Interface: React.FC = () => {
     setMessages((prev) => [...prev, newMessage]);
 
     // Simulate an AI response after a brief delay
-    setTimeout(() => {
-      const aiMessage = { sender: 'AI', text: `Response for: "${input}"` };
-      setMessages((prev) => [...prev, aiMessage]);
-    }, 500);
+    try {
+      const res = await fetch('/api/v1/ai/call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: input }),
+      });
 
+      if (!res.ok) {
+        throw new Error('An error occurred');
+      }
+
+      const data = await res.json();
+
+      console.log(data); // TODO: add extraction and display of message
+
+    } catch (error: any) {
+      console.error(error);
+      const errorMessage = { sender: 'AI', text: 'An error occurred. Please try again.' };
+      
+    }
     setInput('');
   };
 
