@@ -24,7 +24,9 @@ const Interface: React.FC = () => {
   }, [messages]);
 
   const handleSend = async() => {
+    const startTime = performance.now();
     if (!input.trim()) return;
+    const inputSave = input;
 
     setLoading(true);
 
@@ -51,15 +53,22 @@ const Interface: React.FC = () => {
 
       setMessages((prev) => [...prev, aiMessage]);
 
-      console.log(data);
       setLoading(false);
 
     } catch (error: any) {
       console.error(error);
       const errorMessage = { sender: 'AI', text: 'An error occurred. Please try again.' };
+      setMessages((prev) => [...prev, errorMessage]);
       
     }
     setInput('');
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
+    const roundedTime = Math.round(timeTaken * 100) / 100; // Round to 2 decimal places
+    console.log(`Message: ${inputSave}, Time taken: ${roundedTime} milliseconds`);
+
+    // Log the time taken to send the message
+    
   };
 
   return (
