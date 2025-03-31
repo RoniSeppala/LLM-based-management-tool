@@ -13,7 +13,7 @@ const Header: React.FC = () => {
                 borderImageSource: "linear-gradient(to right,rgb(112, 112, 112)50% ,rgb(35, 30, 56))"
             }}>
                 <Toolbar sx={{ justifyContent: 'space-between', color: 'rgb(4, 156, 98)', textShadow: '2px 2px 20px rgba(236, 236, 236, 0.51)' }}>
-                    <h1>CM Tool</h1>
+                    <h1>Operations Management Tool</h1>
                     <IconButton
                         href="https://github.com/RoniSeppala/LLM-based-management-tool"
                     >

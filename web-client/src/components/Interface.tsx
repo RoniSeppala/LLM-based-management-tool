@@ -43,7 +43,6 @@ const Interface: React.FC = () => {
       setMessages((prev) => [...prev, newMessage]);
 
       if (!res.ok) {
-        setLoading(false);
         throw new Error('An error occurred');
       }
 
@@ -56,10 +55,11 @@ const Interface: React.FC = () => {
       setLoading(false);
 
     } catch (error: any) {
+      setLoading(false);
       console.error(error);
       const errorMessage = { sender: 'AI', text: 'An error occurred. Please try again.' };
       setMessages((prev) => [...prev, errorMessage]);
-      
+
     }
     setInput('');
     const endTime = performance.now();
@@ -67,8 +67,6 @@ const Interface: React.FC = () => {
     const roundedTime = Math.round(timeTaken * 100) / 100; // Round to 2 decimal places
     console.log(`Message: ${inputSave}, Time taken: ${roundedTime} milliseconds`);
 
-    // Log the time taken to send the message
-    
   };
 
   return (
