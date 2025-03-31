@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Paper,
@@ -8,34 +8,51 @@ import {
   ListItemText,
   TextField,
   Button,
+  CircularProgress,
 } from '@mui/material';
+import Markdown from 'react-markdown';
+import remarkGFM from "remark-gfm";
 
 const Interface: React.FC = () => {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSend = async() => {
     if (!input.trim()) return;
 
-    // Add user message
-    const newMessage = { sender: 'User', text: input };
-    setMessages((prev) => [...prev, newMessage]);
+    setLoading(true);
 
     // Simulate an AI response after a brief delay
     try {
       const res = await fetch('/api/v1/ai/call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: input }),
+        body: JSON.stringify({ text: input , history: messages }),
       });
 
+      // Add user message
+      const newMessage = { sender: 'User', text: input };
+      setMessages((prev) => [...prev, newMessage]);
+
       if (!res.ok) {
+        setLoading(false);
         throw new Error('An error occurred');
       }
 
       const data = await res.json();
 
-      console.log(data); // TODO: add extraction and display of message
+      const aiMessage = { sender: 'AI', text: data.aiMessage };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+      console.log(data);
+      setLoading(false);
 
     } catch (error: any) {
       console.error(error);
@@ -59,6 +76,7 @@ const Interface: React.FC = () => {
         sx={{
           minWidth: 700,
           maxHeight: "calc(0.6*100vh)",
+          maxWidth: "calc(0.8*100vw)",
           display: 'flex',
           flexDirection: 'column',
           padding : '20px',
@@ -72,21 +90,32 @@ const Interface: React.FC = () => {
         <Typography variant="h5" sx={{ textAlign: 'center', color: 'rgb(4, 156, 98)', fontWeight:'bold', textShadow: '2px 2px 8px rgba(133, 133, 133, 0.51)' }}>
             Chat Interface
         </Typography>
-        <Box sx={{ flex: 1, overflowY: 'auto', mb: 2}}>
+        <Box sx={{ flex: 1, overflowY: 'auto', mb: 2, color: 'white' }}>
           <List>
             {messages.map((msg, index) => (
               <ListItem key={index}>
-                <ListItemText primary={msg.sender} secondary={msg.text} />
+                <ListItemText primary={msg.sender} secondary={
+                  <Markdown 
+                    components={{
+                      p: ({ node, ...props }) => <div {...props} />
+                    }}
+                    remarkPlugins={[remarkGFM]}>
+                      {msg.text}
+                  </Markdown>}
+                  slotProps={{secondary: {component: 'div', sx: {color:"white", whiteSpace: 'pre-wrap'}}}}/>
               </ListItem>
             ))}
+            <div ref={endOfMessagesRef} />
           </List>
         </Box>
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', color: 'white' }}>
           <TextField
             fullWidth
             variant="outlined"
             placeholder="Type your message..."
+            autoComplete="off"
             value={input}
+            slotProps={{input: {sx: {color:"white"}}}}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -103,6 +132,11 @@ const Interface: React.FC = () => {
           >
             Send
           </Button>
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+              <CircularProgress sx={{ color: 'white', paddingLeft: "20px", paddingRight: "20px"}} />
+            </Box>
+          )}
         </Box>
       </Paper>
     </Box>
