@@ -64,8 +64,8 @@ const Interface: React.FC = () => {
     setInput('');
     const endTime = performance.now();
     const timeTaken = endTime - startTime;
-    const roundedTime = Math.round(timeTaken * 100) / 100; // Round to 2 decimal places
-    console.log(`Message: ${inputSave}, Time taken: ${roundedTime} milliseconds`);
+    const roundedTime = Math.round(timeTaken * 100) / 100 / 1000; // Round to 2 decimal places and translated to seconds
+    console.log(`Message: ${inputSave}, Time taken: ${roundedTime} seconds`);
 
   };
 

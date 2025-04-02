@@ -101,8 +101,10 @@ router.post('/call', async (req: Request, res: Response) => {
         fs.writeFileSync(filePath, '', 'utf8');
     }
 
+    const currentTime1 = new Date();
+    const formattedTime1 = `${currentTime1.getHours().toString().padStart(2, '0')}:${currentTime1.getMinutes().toString().padStart(2, '0')}:${currentTime1.getSeconds().toString().padStart(2, '0')}`;
     //log request text
-    const userLogEntry = `${new Date().toISOString()} - User: ${req.body.text}\n`;
+    const userLogEntry = `${formattedTime1} - User: ${req.body.text}\n`;
     fs.appendFile(filePath, userLogEntry, (err) => {
         if (err) {
             console.error('Error writing to log file', err);
@@ -112,6 +114,7 @@ router.post('/call', async (req: Request, res: Response) => {
     });
 
     // Call the AI model
+    const startTime = performance.now();
     try {
         aiMessage = await getAIResponse1(text, history);
         aiVersion = 1;
@@ -121,9 +124,14 @@ router.post('/call', async (req: Request, res: Response) => {
         res.status(500).json({ response: 'An error occurred. Please try again.' });
         return;
     }
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
+    const roundedTime = Math.round(timeTaken * 100) / 100 / 1000; // Round to 2 decimal places and translated to seconds
 
     //log ai response
-    const aiLogEntry = `${new Date().toISOString()} - Version: ${aiVersion} - AI : ${aiMessage}\n`;
+    const currentTime2 = new Date();
+    const formattedTime2 = `${currentTime2.getHours().toString().padStart(2, '0')}:${currentTime2.getMinutes().toString().padStart(2, '0')}:${currentTime2.getSeconds().toString().padStart(2, '0')}`;
+    const aiLogEntry = `${formattedTime2} - Whole system response time(Seconds): ___ - AI Call time(Seconds): ${roundedTime} - Version: ${aiVersion} - AI : ${aiMessage}\n`;//response time is manually added
     fs.appendFile(filePath, aiLogEntry, (err) => {
         if (err) {
             console.error('Error writing to log file', err);
